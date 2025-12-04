@@ -1,546 +1,432 @@
-import React, { useState } from "react";
-import { createRoot } from "react-dom/client";
-
-// --- Icons (Inline SVG for reliability) ---
-const Icons = {
-  Gavel: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m14.5 12.5-8 8a2.119 2.119 0 1 1-3-3l8-8"/><path d="m16 16 6-6"/><path d="m8 8 6-6"/><path d="m9 7 8 8"/><path d="m21 11-8-8"/></svg>
-  ),
-  BadgeCheck: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.78 4.78 4 4 0 0 1-6.74 0 4 4 0 0 1-4.78-4.78 4 4 0 0 1 0-6.74Z"/><path d="m9 12 2 2 4-4"/></svg>
-  ),
-  Globe: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-  ),
-  GraduationCap: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-  ),
-  ArrowRight: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-  ),
-  Menu: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
-  )
-};
-
-// --- Styles ---
-const css = `
-  :root {
-    --primary: #1a365d; /* Royal Blue */
-    --secondary: #2b6cb0; /* Lighter Blue */
-    --accent: #ed8936; /* Gold/Orange */
-    --accent-hover: #dd6b20;
-    --text-main: #2d3748;
-    --text-light: #718096;
-    --bg-light: #f7fafc;
-    --white: #ffffff;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: var(--font-sans);
-    color: var(--text-main);
-    line-height: 1.6;
-    background-color: var(--white);
-  }
-
-  /* Typography */
-  h1, h2, h3 {
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--primary);
-  }
-
-  h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-  h2 { font-size: 2rem; margin-bottom: 2rem; text-align: center; }
-  h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-  p { margin-bottom: 1rem; }
-
-  /* Layout */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  /* Header */
-  header {
-    background: var(--white);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  
-  .nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 80px;
-  }
-
-  .logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .logo span {
-    color: var(--accent);
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 30px;
-  }
-
-  .nav-links a {
-    text-decoration: none;
-    color: var(--text-main);
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover {
-    color: var(--secondary);
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
-    border-radius: 6px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .btn-primary {
-    background-color: var(--accent);
-    color: var(--white);
-  }
-  .btn-primary:hover { background-color: var(--accent-hover); }
-
-  .btn-outline {
-    background-color: transparent;
-    border: 2px solid var(--white);
-    color: var(--white);
-  }
-  .btn-outline:hover { background-color: rgba(255,255,255,0.1); }
-
-  .btn-outline-dark {
-    border: 2px solid var(--primary);
-    color: var(--primary);
-  }
-  .btn-outline-dark:hover { background-color: var(--bg-light); }
-
-  /* Hero */
-  .hero {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    color: var(--white);
-    padding: 80px 0;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
-  }
-
-  .hero-content {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-    z-index: 1;
-  }
-
-  .hero p {
-    font-size: 1.25rem;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 2.5rem;
-  }
-
-  .hero-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-  }
-
-  /* Stats Bar */
-  .stats-bar {
-    background-color: var(--bg-light);
-    padding: 40px 0;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    text-align: center;
-  }
-
-  .stat-item h4 {
-    font-size: 2.5rem;
-    color: var(--primary);
-    font-weight: 800;
-    margin-bottom: 0;
-  }
-  .stat-item span {
-    color: var(--text-light);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-  }
-
-  /* Services */
-  .services {
-    padding: 80px 0;
-  }
-
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-  }
-
-  .service-card {
-    background: var(--white);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #e2e8f0;
-  }
-
-  .service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-    border-color: var(--secondary);
-  }
-
-  .icon-box {
-    background: var(--bg-light);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    color: var(--primary);
-  }
-
-  .service-link {
-    color: var(--secondary);
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 15px;
-  }
-
-  /* News Preview */
-  .news-section {
-    background-color: var(--bg-light);
-    padding: 80px 0;
-  }
-
-  .news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-  }
-
-  .news-card {
-    background: var(--white);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-
-  .news-content {
-    padding: 24px;
-  }
-
-  .news-date {
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .news-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: var(--primary);
-  }
-
-  /* Footer */
-  footer {
-    background: var(--primary);
-    color: var(--white);
-    padding: 60px 0 20px;
-  }
-
-  .footer-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 40px;
-    margin-bottom: 40px;
-  }
-
-  .footer-col h5 {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    color: rgba(255,255,255,0.9);
-  }
-
-  .footer-links {
-    list-style: none;
-  }
-  
-  .footer-links li { margin-bottom: 10px; }
-  
-  .footer-links a {
-    color: rgba(255,255,255,0.7);
-    text-decoration: none;
-  }
-  
-  .footer-links a:hover { color: var(--white); }
-
-  .copyright {
-    text-align: center;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.5);
-    font-size: 0.9rem;
-  }
-
-  /* Mobile */
-  @media (max-width: 768px) {
-    h1 { font-size: 2rem; }
-    .hero { padding: 60px 0; }
-    .nav-links { display: none; } /* Simplified mobile handling */
-    .mobile-menu-btn { display: block; }
-    .hero-buttons { flex-direction: column; }
-    .btn { width: 100%; justify-content: center; }
-  }
-  
-  @media (min-width: 769px) {
-    .mobile-menu-btn { display: none; }
-  }
-`;
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import { 
+  Menu, X, ChevronRight, Globe, ShieldCheck, 
+  Briefcase, TrendingUp, Users, ArrowRight,
+  Phone, Mail, MapPin, Calendar, Award
+} from 'lucide-react';
 
 const App = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: 'О Палате', href: '#' },
+    { name: 'Услуги', href: '#services' },
+    { name: 'Члены Палаты', href: '#' },
+    { name: 'Пресс-центр', href: '#' },
+    { name: 'Контакты', href: '#footer' },
+  ];
+
+  const services = [
+    {
+      title: 'ВЭД и Таможня',
+      description: 'Содействие в поиске партнеров в Китае и Монголии, таможенное оформление, переводы.',
+      icon: <Globe className="w-8 h-8 text-blue-600" />,
+      highlight: true
+    },
+    {
+      title: 'Сертификация',
+      description: 'Выдача сертификатов происхождения товаров (СТ-1, общая форма), экспертиза качества.',
+      icon: <Award className="w-8 h-8 text-amber-500" />,
+      highlight: false
+    },
+    {
+      title: 'Юридическая защита',
+      description: 'Консультации, представительство в судах, защита интеллектуальной собственности.',
+      icon: <ShieldCheck className="w-8 h-8 text-blue-600" />,
+      highlight: false
+    },
+    {
+      title: 'Деловые миссии',
+      description: 'Организация бизнес-миссий, выставок и форумов в России и за рубежом.',
+      icon: <Briefcase className="w-8 h-8 text-blue-600" />,
+      highlight: false
+    },
+  ];
+
+  const news = [
+    {
+      date: '12 Октября 2023',
+      title: 'Бизнес-миссия в Маньчжурию',
+      preview: 'Делегация предпринимателей Забайкалья посетила приграничную зону для обсуждения новых контрактов.',
+      image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      date: '05 Октября 2023',
+      title: 'Семинар по изменениям в налоговом кодексе',
+      preview: 'Эксперты ФНС разъяснили новые правила уплаты ЕНС для малого и среднего бизнеса.',
+      image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=800'
+    },
+    {
+      date: '28 Сентября 2023',
+      title: 'Встреча с Генеральным консулом КНР',
+      preview: 'Обсуждение вопросов упрощения визового режима для водителей грузового транспорта.',
+      image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800'
+    }
+  ];
 
   return (
-    <>
-      <style>{css}</style>
-      
+    <div className="min-h-screen flex flex-col font-sans">
       {/* Navigation */}
-      <header>
-        <div className="container nav-container">
-          <a href="#" className="logo">
-            ТПП <span>РФ</span>
-          </a>
-          
-          <nav className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
-            <a href="#">О Палате</a>
-            <a href="#">Услуги</a>
-            <a href="#">Членство</a>
-            <a href="#">Пресс-центр</a>
-            <a href="#">Контакты</a>
-          </nav>
+      <nav 
+        className={`fixed w-full z-50 transition-all duration-300 ${
+          isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md py-3' : 'bg-transparent py-5 text-white'
+        }`}
+      >
+        <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded flex items-center justify-center font-bold text-xl ${isScrolled ? 'bg-blue-700 text-white' : 'bg-white text-blue-900'}`}>
+              З
+            </div>
+            <div className={`font-bold leading-tight ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
+              <span className="block uppercase tracking-wider text-sm">Забайкальская</span>
+              <span className="text-xs opacity-90">Торгово-промышленная палата</span>
+            </div>
+          </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-             <button className="btn btn-primary">Вступить</button>
-             <button className="mobile-menu-btn btn btn-outline-dark" style={{padding: '8px'}} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-               <Icons.Menu />
-             </button>
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                className={`text-sm font-medium hover:text-amber-500 transition-colors ${isScrolled ? 'text-slate-600' : 'text-slate-100'}`}
+              >
+                {link.name}
+              </a>
+            ))}
+            <button className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full text-sm font-semibold transition-transform hover:scale-105 shadow-lg shadow-amber-500/30">
+              Вступить
+            </button>
+          </div>
+
+          {/* Mobile Toggle */}
+          <button 
+            className="md:hidden p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <X className={isScrolled ? 'text-slate-800' : 'text-white'} />
+            ) : (
+              <Menu className={isScrolled ? 'text-slate-800' : 'text-white'} />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 w-full bg-white shadow-xl border-t md:hidden">
+            <div className="flex flex-col p-4 gap-4">
+              {navLinks.map((link) => (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  className="text-slate-700 font-medium py-2 border-b border-slate-100"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </a>
+              ))}
+              <button className="bg-blue-700 text-white w-full py-3 rounded-lg font-semibold mt-2">
+                Вступить в палату
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <header className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-slate-900">
+        {/* Background Overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-slate-900/80 z-10"></div>
+          {/* Abstract geometric background representation */}
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-400 via-blue-500 to-transparent"></div>
+          <img 
+            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
+            alt="Modern Business Building" 
+            className="w-full h-full object-cover grayscale mix-blend-overlay"
+          />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-20 pt-20">
+          <div className="max-w-3xl">
+            <div className="inline-block px-3 py-1 bg-amber-500/20 border border-amber-500/40 rounded-full text-amber-300 text-xs font-bold tracking-wider mb-6">
+              РАЗВИВАЕМ БИЗНЕС ВМЕСТЕ
+            </div>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+              Ваш надежный партнер <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
+                в Забайкалье
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-slate-300 mb-10 max-w-xl leading-relaxed">
+              Мы объединяем предпринимателей для создания благоприятной бизнес-среды, развития международных связей и защиты интересов бизнеса.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all hover:shadow-lg hover:shadow-amber-500/30 flex items-center justify-center gap-2 group">
+                Стать членом палаты
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all flex items-center justify-center">
+                Наши услуги
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Stats Strip */}
+        <div className="absolute bottom-0 w-full border-t border-white/10 bg-black/20 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
+              <div>
+                <div className="text-3xl font-bold text-white">30+</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Лет опыта</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white">450+</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Компаний-членов</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white">1200+</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Экспертиз в год</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white">CN/MN</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Международные связи</div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="container hero-content">
-          <h1>Объединяем бизнес — развиваем регион</h1>
-          <p>
-            Торгово-промышленная палата — ваш надежный партнер. Защищаем интересы, 
-            помогаем с выходом на новые рынки и сертифицируем продукцию.
-          </p>
-          <div className="hero-buttons">
-            <button className="btn btn-primary">Стать членом палаты</button>
-            <button className="btn btn-outline">Календарь событий</button>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="stats-bar">
-        <div className="container">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <h4>1,200+</h4>
-              <span>Членов палаты</span>
-            </div>
-            <div className="stat-item">
-              <h4>30</h4>
-              <span>Лет опыта</span>
-            </div>
-            <div className="stat-item">
-              <h4>50k+</h4>
-              <span>Выданных сертификатов</span>
-            </div>
-            <div className="stat-item">
-              <h4>200+</h4>
-              <span>Мероприятий в год</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Services Section */}
-      <section className="services">
-        <div className="container">
-          <h2>Наши услуги</h2>
-          <div className="services-grid">
-            
-            <div className="service-card">
-              <div className="icon-box"><Icons.Gavel /></div>
-              <h3>Юридическая поддержка</h3>
-              <p>Защита интересов в суде, правовая экспертиза договоров, консультации по налоговому праву.</p>
-              <a href="#" className="service-link">Подробнее <Icons.ArrowRight /></a>
+      <section id="services" className="py-24 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div>
+              <h2 className="text-slate-900 text-3xl md:text-4xl font-bold mb-4">Направления деятельности</h2>
+              <p className="text-slate-600 max-w-xl">
+                Комплексная поддержка бизнеса на всех этапах развития: от регистрации и защиты прав до выхода на международные рынки.
+              </p>
             </div>
-
-            <div className="service-card">
-              <div className="icon-box"><Icons.BadgeCheck /></div>
-              <h3>Сертификация и Экспертиза</h3>
-              <p>Выдача сертификатов происхождения (СТ-1), экспертиза качества товаров, оценка собственности.</p>
-              <a href="#" className="service-link">Подробнее <Icons.ArrowRight /></a>
-            </div>
-
-            <div className="service-card">
-              <div className="icon-box"><Icons.Globe /></div>
-              <h3>ВЭД и Сотрудничество</h3>
-              <p>Поиск партнеров за рубежом, организация бизнес-миссий, переводческие услуги и таможенное сопровождение.</p>
-              <a href="#" className="service-link">Подробнее <Icons.ArrowRight /></a>
-            </div>
-
-            <div className="service-card">
-              <div className="icon-box"><Icons.GraduationCap /></div>
-              <h3>Деловое образование</h3>
-              <p>Семинары, тренинги для руководителей и сотрудников, курсы повышения квалификации.</p>
-              <a href="#" className="service-link">Подробнее <Icons.ArrowRight /></a>
-            </div>
-
+            <a href="#" className="text-blue-700 font-semibold flex items-center gap-1 hover:gap-2 transition-all">
+              Все услуги <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
-        </div>
-      </section>
 
-      {/* News Preview */}
-      <section className="news-section">
-        <div className="container">
-          <h2>Новости и События</h2>
-          <div className="news-grid">
-            {[1, 2, 3].map((i) => (
-              <div className="news-card" key={i}>
-                <div style={{height: '180px', background: '#cbd5e0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#718096'}}>
-                  Изображение новости
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((service, index) => (
+              <div 
+                key={index}
+                className={`p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-1 ${
+                  service.highlight 
+                    ? 'bg-blue-900 text-white shadow-xl shadow-blue-900/20' 
+                    : 'bg-white text-slate-800 shadow-sm hover:shadow-lg border border-slate-100'
+                }`}
+              >
+                <div className={`mb-6 p-3 rounded-xl inline-block ${
+                  service.highlight ? 'bg-white/10' : 'bg-blue-50'
+                }`}>
+                  {service.icon}
                 </div>
-                <div className="news-content">
-                  <span className="news-date">12 Октября 2023</span>
-                  <h4 className="news-title">Итоги регионального форума "Бизнес-Успех"</h4>
-                  <p style={{fontSize: '0.9rem', color: '#4a5568'}}>
-                    Обсудили ключевые вопросы поддержки малого и среднего предпринимательства...
-                  </p>
-                  <a href="#" style={{color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem'}}>Читать далее</a>
-                </div>
+                <h3 className={`text-xl font-bold mb-3 ${service.highlight ? 'text-white' : 'text-slate-900'}`}>
+                  {service.title}
+                </h3>
+                <p className={`text-sm leading-relaxed mb-6 ${service.highlight ? 'text-blue-100' : 'text-slate-500'}`}>
+                  {service.description}
+                </p>
+                <a href="#" className={`inline-flex items-center text-sm font-semibold ${
+                  service.highlight ? 'text-amber-400 hover:text-amber-300' : 'text-blue-600 hover:text-blue-700'
+                }`}>
+                  Подробнее <ChevronRight className="w-4 h-4 ml-1" />
+                </a>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer>
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-col">
-              <div className="logo" style={{color: 'white', marginBottom: '20px'}}>
-                ТПП <span>РФ</span>
-              </div>
-              <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem'}}>
-                Союз «Торгово-промышленная палата» — негосударственная некоммерческая организация.
-              </p>
-            </div>
+      {/* CTA Block */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="bg-amber-50 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row items-center gap-12 relative overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-amber-100 rounded-full blur-3xl opacity-50"></div>
             
-            <div className="footer-col">
-              <h5>Разделы</h5>
-              <ul className="footer-links">
-                <li><a href="#">Об организации</a></li>
-                <li><a href="#">Документы</a></li>
-                <li><a href="#">Комитеты</a></li>
-                <li><a href="#">Проекты</a></li>
+            <div className="flex-1 relative z-10">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                Присоединяйтесь к ведущему бизнес-сообществу региона
+              </h2>
+              <ul className="space-y-4 mb-8">
+                {[
+                  'Прямой диалог с властью',
+                  'Расширение деловых контактов',
+                  'Участие в закрытых мероприятиях',
+                  'Скидки на услуги Палаты'
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-slate-700">
+                    <div className="w-6 h-6 rounded-full bg-amber-200 flex items-center justify-center text-amber-700">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <button className="bg-slate-900 text-white px-8 py-4 rounded-lg font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
+                Подать заявку на вступление
+              </button>
+            </div>
+            <div className="flex-1 w-full max-w-md">
+               <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 rotate-2 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                       <TrendingUp className="text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900">Ваш бизнес</div>
+                      <div className="text-sm text-slate-500">Потенциал роста</div>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="h-2 bg-slate-100 rounded-full w-full">
+                      <div className="h-2 bg-blue-500 rounded-full w-3/4"></div>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full w-full">
+                      <div className="h-2 bg-amber-500 rounded-full w-1/2"></div>
+                    </div>
+                  </div>
+                  <div className="mt-6 text-sm text-slate-500 text-center">
+                    Вместе мы сильнее. Станьте частью команды.
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* News Section */}
+      <section className="py-24 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Новости и События</h2>
+            <p className="text-slate-600">Будьте в курсе деловой жизни региона</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {news.map((item, i) => (
+              <div key={i} className="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer border border-slate-100">
+                <div className="h-48 overflow-hidden bg-slate-200 relative">
+                   {/* Placeholder for news image */}
+                   <div className="absolute inset-0 bg-slate-800/10 group-hover:bg-slate-800/0 transition-colors"></div>
+                   <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 text-xs text-amber-600 font-semibold mb-3">
+                    <Calendar className="w-4 h-4" />
+                    {item.date}
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-3 group-hover:text-blue-700 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-slate-500 text-sm line-clamp-3">
+                    {item.preview}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <button className="text-slate-600 font-semibold hover:text-slate-900 border-b-2 border-transparent hover:border-slate-900 transition-all">
+              Читайте все новости
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="footer" className="bg-slate-900 text-slate-300 py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div>
+              <div className="text-white font-bold text-2xl mb-6">ЗТПП</div>
+              <p className="text-sm leading-relaxed text-slate-400 mb-6">
+                Союз "Забайкальская Торгово-Промышленная Палата" — негосударственная некоммерческая организация, объединяющая предприятия и предпринимателей.
+              </p>
+              <div className="flex gap-4">
+                {/* Social placeholders */}
+                <div className="w-10 h-10 rounded bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors cursor-pointer">VK</div>
+                <div className="w-10 h-10 rounded bg-slate-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-colors cursor-pointer">TG</div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold mb-6">Навигация</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Об организации</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Услуги и тарифы</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Реестр членов</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Комитеты</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Бизнес-образование</a></li>
               </ul>
             </div>
 
-            <div className="footer-col">
-              <h5>Услуги</h5>
-              <ul className="footer-links">
-                <li><a href="#">Сертификация</a></li>
-                <li><a href="#">Оценка</a></li>
-                <li><a href="#">Юридические услуги</a></li>
-                <li><a href="#">Выставки</a></li>
+            <div>
+              <h4 className="text-white font-bold mb-6">Услуги</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Экспертиза и сертификация</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Оценка собственности</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Переводы</a></li>
+                <li><a href="#" className="hover:text-amber-500 transition-colors">Штрихкодирование</a></li>
               </ul>
             </div>
 
-            <div className="footer-col">
-              <h5>Контакты</h5>
-              <ul className="footer-links">
-                <li>+7 (999) 000-00-00</li>
-                <li>info@tpp-example.ru</li>
-                <li>г. Москва, ул. Примерная, д. 1</li>
+            <div>
+              <h4 className="text-white font-bold mb-6">Контакты</h4>
+              <ul className="space-y-4 text-sm">
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-amber-500 shrink-0" />
+                  <span>г. Чита, ул. Шилова, 100</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-amber-500 shrink-0" />
+                  <span>+7 (3022) 12-34-56</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-amber-500 shrink-0" />
+                  <span>info@zabtpp.ru</span>
+                </li>
               </ul>
             </div>
           </div>
-          
-          <div className="copyright">
-             © 2023 Торгово-промышленная палата. Версия сайта: Вариант 1.
+
+          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
+            <div className="mb-4 md:mb-0">
+              © {new Date().getFullYear()} Забайкальская ТПП. Все права защищены.
+            </div>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-white">Политика конфиденциальности</a>
+              <a href="#" className="hover:text-white">Пользовательское соглашение</a>
+            </div>
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 };
 
-const rootElement = document.getElementById("root");
-
-if (rootElement) {
-  const root = createRoot(rootElement);
-  root.render(<App />);
-} else {
-  console.error("Target container 'root' is not a DOM element.");
-}
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);
