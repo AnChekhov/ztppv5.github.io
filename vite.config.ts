@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      // Вот здесь мы указываем имя вашего репозитория
+      base: '/ztppv5.github.io/',
       server: {
         port: 3000,
         host: '0.0.0.0',
