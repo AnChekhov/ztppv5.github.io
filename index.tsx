@@ -164,13 +164,13 @@ const App = () => {
               РАЗВИВАЕМ БИЗНЕС ВМЕСТЕ
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Ваш надежный партнер <br />
+              Сильный бизнес - <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
-                в Забайкалье
+                сильный регион
               </span>
             </h1>
             <p className="text-lg md:text-xl text-slate-300 mb-10 max-w-xl leading-relaxed">
-              Мы объединяем предпринимателей для создания благоприятной бизнес-среды, развития международных связей и защиты интересов бизнеса.
+              Укрепляем бизнес - развиваем Забайкалье. Мы защищаем интересы предпринимателей и открываем международные рынки.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all hover:shadow-lg hover:shadow-amber-500/30 flex items-center justify-center gap-2 group">
@@ -364,7 +364,7 @@ const App = () => {
             <div>
               <div className="text-white font-bold text-2xl mb-6">ЗТПП</div>
               <p className="text-sm leading-relaxed text-slate-400 mb-6">
-                Союз "Забайкальская Торгово-Промышленная Палата" — негосударственная некоммерческая организация, объединяющая предприятия и предпринимателей.
+                Союз "Забайкальская Торгово-Промышленная Палата" - негосударственная некоммерческая организация, объединяющая предприятия и предпринимателей.
               </p>
               <div className="flex gap-4">
                 {/* Social placeholders */}
