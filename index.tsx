@@ -83,15 +83,21 @@ const App = () => {
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
-          <div className="flex items-center gap-3">
+          
+          {/* Brand Block (Logo + Text) */}
+          <div className={`flex items-center gap-4 px-5 py-3 rounded-xl border transition-all duration-300 ${
+            isScrolled 
+              ? 'bg-slate-100 border-slate-200 text-slate-900' 
+              : 'bg-white/10 border-white/20 backdrop-blur-md text-white'
+          }`}>
             <img 
-              src="images/logo.png" 
+              src="https://anchekhov.github.io/ztppv5.github.io/images/logo.png" 
               alt="ТПП Забайкальского края" 
-              className="w-12 h-12 object-contain"
+              className="w-14 h-14 object-contain"
             />
-            <div className={`font-bold leading-tight ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
-              <span className="block uppercase tracking-wider text-sm">Забайкальская</span>
-              <span className="text-xs opacity-90">Торгово-промышленная палата</span>
+            <div className="flex flex-col text-left">
+              <span className="font-bold uppercase text-xs sm:text-sm tracking-wide leading-tight">Торгово-промышленная палата</span>
+              <span className="font-bold uppercase text-xs sm:text-sm tracking-wide leading-tight">Забайкальского края</span>
             </div>
           </div>
 
@@ -101,12 +107,12 @@ const App = () => {
               <a 
                 key={link.name} 
                 href={link.href} 
-                className={`text-sm font-medium hover:text-amber-500 transition-colors ${isScrolled ? 'text-slate-600' : 'text-slate-100'}`}
+                className={`text-base font-medium hover:text-amber-500 transition-colors ${isScrolled ? 'text-slate-600' : 'text-slate-100'}`}
               >
                 {link.name}
               </a>
             ))}
-            <button className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full text-sm font-semibold transition-transform hover:scale-105 shadow-lg shadow-amber-500/30">
+            <button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-full text-base font-semibold transition-transform hover:scale-105 shadow-lg shadow-amber-500/30">
               Вступить
             </button>
           </div>
