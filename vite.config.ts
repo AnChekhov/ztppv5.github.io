@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // Правильный адрес сайта
+      // Это правильный адрес, который мы видели в настройках
       base: '/ztppv5.github.io/',
       
       server: {
@@ -13,7 +13,6 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        // Защита ключей
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ""),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || "")
       }
