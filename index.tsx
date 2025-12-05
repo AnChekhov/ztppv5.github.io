@@ -84,9 +84,11 @@ const App = () => {
       >
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded flex items-center justify-center font-bold text-xl ${isScrolled ? 'bg-blue-700 text-white' : 'bg-white text-blue-900'}`}>
-              З
-            </div>
+            <img 
+              src="images/logo.png" 
+              alt="ТПП Забайкальского края" 
+              className="w-12 h-12 object-contain"
+            />
             <div className={`font-bold leading-tight ${isScrolled ? 'text-slate-800' : 'text-white'}`}>
               <span className="block uppercase tracking-wider text-sm">Забайкальская</span>
               <span className="text-xs opacity-90">Торгово-промышленная палата</span>
